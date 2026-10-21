@@ -1,0 +1,412 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+/* ===== Dasar ===== */
+:root {
+  color-scheme: dark;
+  font-family: 'Outfit', 'Segoe UI', system-ui, sans-serif;
+  background: #0a0b14;
+  --teks: #edebff;
+  --redup: rgba(237, 235, 255, 0.64);
+  --kaca: rgba(255, 255, 255, 0.07);
+  --tepi: rgba(255, 255, 255, 0.14);
+  --tombol-ink: #0b0d1a;
+}
+body {
+  display: block;
+  margin: 0;
+  min-width: 0;
+}
+
+/* ===== Warna tiap mode: aksen + tiga cahaya latar ===== */
+.app[data-mode='fokus'] {
+  --aksen: #8b7bff; /* violet: konsentrasi */
+  --blob1: rgba(124, 92, 255, 0.55);
+  --blob2: rgba(34, 211, 238, 0.32);
+  --blob3: rgba(244, 114, 182, 0.28);
+}
+.app[data-mode='istirahat'] {
+  --aksen: #34d5b0; /* mint: tenang */
+  --blob1: rgba(52, 213, 176, 0.45);
+  --blob2: rgba(56, 189, 248, 0.32);
+  --blob3: rgba(163, 230, 53, 0.16);
+}
+.app[data-mode='panjang'] {
+  --aksen: #ff8fb1; /* rose: santai */
+  --blob1: rgba(255, 143, 177, 0.42);
+  --blob2: rgba(251, 191, 36, 0.26);
+  --blob3: rgba(167, 139, 250, 0.34);
+}
+
+.app {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 2rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  background: #0a0b14;
+  color: var(--teks);
+}
+
+/* Cahaya aurora yang bergerak pelan di belakang semua konten */
+.app::before {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 22%, var(--blob1) 0, transparent 38%),
+    radial-gradient(circle at 82% 30%, var(--blob2) 0, transparent 38%),
+    radial-gradient(circle at 50% 92%, var(--blob3) 0, transparent 42%);
+  filter: blur(48px);
+  animation: melayang 28s ease-in-out infinite alternate;
+}
+@keyframes melayang {
+  from {
+    transform: translate(-3%, -2%) rotate(0deg) scale(1);
+  }
+  to {
+    transform: translate(3%, 4%) rotate(8deg) scale(1.08);
+  }
+}
+
+/* ===== Pilihan mode (kapsul kaca) ===== */
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: var(--kaca);
+  border: 1px solid var(--tepi);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.mode {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--redup);
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.mode:hover {
+  color: var(--teks);
+}
+.mode.aktif {
+  color: var(--teks);
+  font-weight: 500;
+  background: color-mix(in srgb, var(--aksen) 28%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aksen) 60%, transparent);
+}
+
+/* ===== Timer: cakram kaca + cincin menyala ===== */
+.timer {
+  position: relative;
+  box-sizing: border-box;
+  width: min(80vw, 320px);
+  aspect-ratio: 1;
+  padding: 14px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgba(255, 255, 255, 0.14),
+    rgba(255, 255, 255, 0.03) 60%
+  );
+  border: 1px solid var(--tepi);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    0 0 80px color-mix(in srgb, var(--aksen) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.cincin {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg); /* mulai dari atas */
+}
+.cincin circle {
+  fill: none;
+  stroke-width: 5;
+}
+.jalur {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+.progres {
+  stroke: var(--aksen);
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px var(--aksen));
+  transition: stroke-dashoffset 1s linear;
+}
+.waktu {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(3rem, 16vw, 4.75rem);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 32px color-mix(in srgb, var(--aksen) 55%, transparent);
+}
+
+.status {
+  margin: 0;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: var(--kaca);
+  border: 1px solid var(--tepi);
+  color: var(--redup);
+  font-size: 0.9rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ===== Tombol kontrol ===== */
+.kontrol {
+  display: flex;
+  gap: 0.75rem;
+}
+.kontrol button {
+  min-width: 7rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.kontrol button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.utama {
+  border: none;
+  color: var(--tombol-ink);
+  background: linear-gradient(
+    135deg,
+    var(--aksen),
+    color-mix(in srgb, var(--aksen) 55%, #ffffff)
+  );
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--aksen) 45%, transparent);
+}
+.utama:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.sekunder {
+  border: 1px solid var(--tepi);
+  background: var(--kaca);
+  color: var(--teks);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ===== Rencana belajar (kartu kaca) ===== */
+.rencana {
+  --warna: var(--aksen);
+  box-sizing: border-box;
+  width: min(100%, 540px);
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border-radius: 24px;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.04)
+  );
+  border: 1px solid var(--tepi);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  text-align: left;
+}
+.rencana h2 {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+/* Chip topik: tiap topik punya warna sendiri (titik berwarna) */
+.topik {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--tepi);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--redup);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.chip::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--warna);
+  box-shadow: 0 0 8px var(--warna);
+}
+.chip:hover {
+  color: var(--teks);
+}
+.chip.aktif {
+  color: var(--teks);
+  font-weight: 500;
+  background: color-mix(in srgb, var(--warna) 22%, transparent);
+  border-color: color-mix(in srgb, var(--warna) 70%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--warna) 30%, transparent);
+}
+
+.ringkasan {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--redup);
+  font-size: 0.9rem;
+}
+.bar {
+  height: 8px;
+  margin-bottom: 1.1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.bar-isi {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--warna),
+    color-mix(in srgb, var(--warna) 55%, #ffffff)
+  );
+  box-shadow: 0 0 12px var(--warna);
+  transition: width 0.4s;
+}
+
+.daftar {
+  margin: 0 0 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+.item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.item label {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex: 1;
+  cursor: pointer;
+}
+.item input[type='checkbox'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--warna);
+}
+.item.selesai span {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+.hapus {
+  border: none;
+  background: transparent;
+  color: var(--redup);
+  font: inherit;
+  font-size: 0.85rem;
+  opacity: 0.55;
+  cursor: pointer;
+}
+.hapus:hover {
+  opacity: 1;
+  color: #ff8fa3;
+}
+.kosong {
+  margin: 0 0 1.1rem;
+  color: var(--redup);
+}
+
+.tambah {
+  display: flex;
+  gap: 0.5rem;
+}
+.tambah input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--tepi);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--teks);
+  font: inherit;
+}
+.tambah input::placeholder {
+  color: var(--redup);
+  opacity: 0.7;
+}
+.tambah button {
+  padding: 0.7rem 1.1rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--warna),
+    color-mix(in srgb, var(--warna) 55%, #ffffff)
+  );
+  color: var(--tombol-ink);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--warna) 40%, transparent);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--aksen);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app::before {
+    animation: none;
+  }
+  .progres,
+  .bar-isi,
+  .mode,
+  .chip,
+  .kontrol button {
+    transition: none;
+  }
+}
