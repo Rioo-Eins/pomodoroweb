@@ -410,3 +410,30 @@ input:focus-visible {
     transition: none;
   }
 }
+
+/* ===== Opsi alarm ===== */
+.opsi {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: -0.5rem;
+}
+.kecil {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--tepi);
+  border-radius: 999px;
+  background: var(--kaca);
+  color: var(--redup);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: color 0.2s, border-color 0.2s;
+}
+.kecil:hover {
+  color: var(--teks);
+}
+.kecil[aria-pressed='true'] {
+  color: var(--teks);
+  border-color: color-mix(in srgb, var(--aksen) 60%, transparent);
+}
